@@ -140,7 +140,7 @@ namespace NestedDropdownMenuSystem
         {
             var rootMenu = RootMenu;
             rootMenu.DropDown(rect, targetElement, anchored);
-            ModifyRootMenuCallbacks(rootMenu);
+            // ModifyRootMenuCallbacks(rootMenu);
         }
 
 
@@ -159,45 +159,12 @@ namespace NestedDropdownMenuSystem
             scrollView.UnregisterCallback(menu.GetOnFocusOutDelegate());
 
             var rootMenuContainer = menu.GetMenuContainer();
-            rootMenuContainer.RegisterCallback<PointerDownEvent>(OnPointerDown);
-            rootMenuContainer.RegisterCallback<PointerMoveEvent>(OnPointerMove);
-            rootMenuContainer.RegisterCallback<FocusOutEvent>(OnFocusOut);
-
-            rootMenuContainer.RegisterCallback<PointerUpEvent>(OnPointerUp);
-        }
-
-        private Vector2 _pointerPosition;
-
-        // ～このへん。サブメニューOnPointerMove/Downでサブメニューをなめる～
-        private void OnPointerMove(PointerMoveEvent evt) => _pointerPosition = evt.position;
-        private void OnPointerDown(PointerDownEvent evt) => _pointerPosition = evt.position;
-
-        /// <summary>
-        /// サブメニューを含めどれかのメニュー上にマウスがあるときはフォーカスし、 ない場合は閉じる
-        /// </summary>
-        private void OnFocusOut(FocusOutEvent evt)
-        {
-            // var pointerInsideMenu = Menus
-            //     .Select(menu => menu.GetScrollView())
-            //     .Any(scrollView => scrollView.ContainsPoint(scrollView.WorldToLocal(_pointerPosition)));
+            // rootMenuContainer.RegisterCallback<PointerDownEvent>(OnPointerDown);
+            // rootMenuContainer.RegisterCallback<PointerMoveEvent>(OnPointerMove);
+            // rootMenuContainer.RegisterCallback<FocusOutEvent>(OnFocusOut);
             //
-            // if (!pointerInsideMenu)
-            // {
-            //     _rootMenu.Hide();
-            // }
+            // rootMenuContainer.RegisterCallback<PointerUpEvent>(OnPointerUp);
         }
 
-
-        // RootMenuでPointerUpしたときはRootMenuで選択中アイテムしかアクションしないので
-        // SubMenuのアイテムもアクションをするように通知する
-        private void OnPointerUp(PointerUpEvent evt)
-        {
-            // foreach (var menus in Menus)
-            // {
-            //     menus.OnPointerUp(evt);
-            // }
-            //
-            // _rootMenu.Hide(true);
-        }
     }
 }

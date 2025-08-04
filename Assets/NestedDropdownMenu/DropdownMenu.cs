@@ -80,6 +80,7 @@ namespace NestedDropdownMenuSystem
         private void HideSubmenuIfItemUnselected()
         {
             var selectedItem = GetSelectedItem();
+            if (selectedItem == null) return;
             
             foreach(var (item, submenu) in _itemToSubmenuTable)
             {

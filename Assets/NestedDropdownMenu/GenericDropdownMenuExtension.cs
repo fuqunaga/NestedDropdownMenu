@@ -30,20 +30,20 @@ namespace NestedDropdownMenuSystem
                 : GetFirstAncestorByClassName(menu.contentContainer, GenericDropdownMenu.containerInnerUssClassName);
         }
 
-        public static void OnPointerUp(this GenericDropdownMenu menu, PointerUpEvent evt)
-        {
-            if (menu == null) return;
-
-            if (_pointerUpMethodInfo == null)
-            {
-                _pointerUpMethodInfo =
-                    typeof(GenericDropdownMenu).GetMethod("OnPointerUp",
-                        BindingFlags.NonPublic | BindingFlags.Instance);
-                Assert.IsNotNull(_pointerUpMethodInfo, "OnPointerUp method not found in GenericDropdownMenu");
-            }
-
-            _pointerUpMethodInfo.Invoke(menu, new object[] { evt });
-        }
+        // public static void OnPointerUp(this GenericDropdownMenu menu, PointerUpEvent evt)
+        // {
+        //     if (menu == null) return;
+        //
+        //     if (_pointerUpMethodInfo == null)
+        //     {
+        //         _pointerUpMethodInfo =
+        //             typeof(GenericDropdownMenu).GetMethod("OnPointerUp",
+        //                 BindingFlags.NonPublic | BindingFlags.Instance);
+        //         Assert.IsNotNull(_pointerUpMethodInfo, "OnPointerUp method not found in GenericDropdownMenu");
+        //     }
+        //
+        //     _pointerUpMethodInfo.Invoke(menu, new object[] { evt });
+        // }
 
         // public static void Hide(this GenericDropdownMenu menu, bool giveFocusBack = false)
         // {
