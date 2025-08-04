@@ -57,7 +57,17 @@ namespace NestedDropdownMenuSystem.Sample.Runtime
             menu.AddDisabledItem("Item3 (Disabled)", false);
             menu.AddSeparator("");
             menu.AddItem("Sub/Item 1", false, () => Debug.Log("Sub Item 1 clicked"));
-            menu.AddItem("Sub/Item 2", false, () => Debug.Log("Sub Item 2 clicked"));
+            menu.AddItem("Sub/Item 2(Checked)", false, () => Debug.Log("Sub Item 2 clicked"));
+            menu.AddSeparator("Sub/");
+            menu.AddDisabledItem("Sub/Item3 (Disabled)", false);
+            menu.AddSeparator("Sub/");
+            menu.AddItem("Sub/Sub/Item 1", false, () => Debug.Log("Sub/Sub Item 1 clicked"));
+            menu.AddItem("Sub/Sub/Item 2", false, () => Debug.Log("Sub/Sub Item 2 clicked"));
+            menu.AddSeparator("Sub/Sub/");
+            menu.AddItem("Sub/Sub/Sub/Item 1", false, () => Debug.Log("Sub/Sub/Sub Item 1 clicked"));
+            menu.AddItem("Sub/Sub/Sub/Item 2", false, () => Debug.Log("Sub/Sub/Sub Item 2 clicked"));
+            
+            
 
             menu.DropDown(rect, targetElement, anchored);
         }

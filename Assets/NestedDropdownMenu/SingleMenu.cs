@@ -225,6 +225,11 @@ namespace NestedDropdownMenuSystem
 
         private void HideAsSubmenu()
         {
+            foreach(var submenu in _itemToSubmenuTable.Values)
+            {
+                submenu.HideAsSubmenu();
+            }
+            
             _outerContainer.RemoveFromHierarchy();
             _parentMenu = null;
         }
