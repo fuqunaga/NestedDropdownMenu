@@ -197,15 +197,29 @@ namespace NestedDropdownMenuSystem
         private void ShowAsSubmenu(SingleMenu parentMenu, VisualElement targetElement)
         {
             _parentMenu = parentMenu;
-            
-            // TODO: ほかのサブメニューも考慮
-            var rectWorld = targetElement.worldBound;
-            var position = RootMenuContainer.WorldToLocal(new Vector2(rectWorld.xMax, rectWorld.yMin));
-            
-            var style = _outerContainer.style;
-            style.left = position.x;
-            style.top = position.y;
-            
+
+
+            _outerContainer.RegisterCallbackOnce<GeometryChangedEvent>(_ =>
+            {
+                // TODO: ほかのサブメニューも考慮
+                var rectWorld = targetElement.worldBound;
+                var position = RootMenuContainer.WorldToLocal(new Vector2(rectWorld.xMax, rectWorld.yMin));
+
+                // firstItemとtargetElementのYの位置を揃える
+                var offsetY = 0f;
+                var firstItem = _scrollView.Children().FirstOrDefault();
+                if (firstItem != null)
+                {
+                    var fistItemWorldPosition = firstItem.worldBound.position;
+                    var firstItemPositionOnOuterContainer = _outerContainer.WorldToLocal(fistItemWorldPosition);
+                    offsetY = -firstItemPositionOnOuterContainer.y;
+                }
+
+                var style = _outerContainer.style;
+                style.left = position.x;
+                style.top = position.y + offsetY;
+            });
+
             RootMenuContainer.Add(_outerContainer);
         }
 
