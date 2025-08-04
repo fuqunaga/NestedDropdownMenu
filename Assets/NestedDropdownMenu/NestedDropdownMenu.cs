@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
-using PointerType = UnityEngine.PointerType;
-
 
 namespace NestedDropdownMenuSystem
 {
@@ -79,7 +76,7 @@ namespace NestedDropdownMenuSystem
                 var isSubMenu = !string.IsNullOrEmpty(path);
                 if (isSubMenu)
                 {
-                    InitializeSubMenu(menu);
+                    // InitializeSubMenu(menu);
 
                     // 親メニューにサブメニューアイテムを追加
                     var (parentMenu, menuLabel) = GetMenuAndLabel(path);
@@ -98,26 +95,26 @@ namespace NestedDropdownMenuSystem
             if (menu == null || subMenu == null) return;
 
             const int delayMs = 500;
-            menu.AddSubmenuItem(label, delayMs, (item) => { ShowSubMenu(subMenu, item); });
+            menu.AddSubmenuItem(label, delayMs, subMenu);
         }
 
-        private void ShowSubMenu(GenericDropdownMenu subMenu, VisualElement targetElement)
-        {
-            if (subMenu == null) return;
-
-            var rootMenu = RootMenu;
-            var menuContainer = rootMenu.GetMenuContainer();
-
-            var rectWorld = targetElement?.worldBound ?? new Rect(Vector2.zero, Vector2.zero);
-            var position = menuContainer.WorldToLocal(new Vector2(rectWorld.xMax, rectWorld.yMin));
-
-            var outerContainer = subMenu.GetOuterContainer();
-            var style = outerContainer.style;
-            style.left = position.x;
-            style.top = position.y;
-
-            menuContainer.Add(outerContainer);
-        }
+        // private void ShowSubMenu(GenericDropdownMenu subMenu, VisualElement targetElement)
+        // {
+        //     if (subMenu == null) return;
+        //
+        //     var rootMenu = RootMenu;
+        //     var menuContainer = rootMenu.GetMenuContainer();
+        //
+        //     var rectWorld = targetElement?.worldBound ?? new Rect(Vector2.zero, Vector2.zero);
+        //     var position = menuContainer.WorldToLocal(new Vector2(rectWorld.xMax, rectWorld.yMin));
+        //
+        //     var outerContainer = subMenu.GetOuterContainer();
+        //     var style = outerContainer.style;
+        //     style.left = position.x;
+        //     style.top = position.y;
+        //
+        //     menuContainer.Add(outerContainer);
+        // }
 
 
         private static (string path, string label) ParseItemNameToPathAndLabel(string itemName)
@@ -171,7 +168,7 @@ namespace NestedDropdownMenuSystem
 
         private Vector2 _pointerPosition;
 
-        ～このへん。サブメニューOnPointerMove/Downでサブメニューをなめる～
+        // ～このへん。サブメニューOnPointerMove/Downでサブメニューをなめる～
         private void OnPointerMove(PointerMoveEvent evt) => _pointerPosition = evt.position;
         private void OnPointerDown(PointerDownEvent evt) => _pointerPosition = evt.position;
 
@@ -180,14 +177,14 @@ namespace NestedDropdownMenuSystem
         /// </summary>
         private void OnFocusOut(FocusOutEvent evt)
         {
-            var pointerInsideMenu = Menus
-                .Select(menu => menu.GetScrollView())
-                .Any(scrollView => scrollView.ContainsPoint(scrollView.WorldToLocal(_pointerPosition)));
-
-            if (!pointerInsideMenu)
-            {
-                _rootMenu.Hide();
-            }
+            // var pointerInsideMenu = Menus
+            //     .Select(menu => menu.GetScrollView())
+            //     .Any(scrollView => scrollView.ContainsPoint(scrollView.WorldToLocal(_pointerPosition)));
+            //
+            // if (!pointerInsideMenu)
+            // {
+            //     _rootMenu.Hide();
+            // }
         }
 
 
@@ -195,12 +192,12 @@ namespace NestedDropdownMenuSystem
         // SubMenuのアイテムもアクションをするように通知する
         private void OnPointerUp(PointerUpEvent evt)
         {
-            foreach (var menus in Menus)
-            {
-                menus.OnPointerUp(evt);
-            }
-
-            _rootMenu.Hide(true);
+            // foreach (var menus in Menus)
+            // {
+            //     menus.OnPointerUp(evt);
+            // }
+            //
+            // _rootMenu.Hide(true);
         }
     }
 }

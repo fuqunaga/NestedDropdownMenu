@@ -67,7 +67,7 @@ namespace NestedDropdownMenuSystem
             return (EventCallback<FocusOutEvent>)methodInfo.CreateDelegate(typeof(EventCallback<FocusOutEvent>), menu);
         }
 
-        private static VisualElement GetFirstAncestorByClassName(VisualElement element, string className)
+        public static VisualElement GetFirstAncestorByClassName(this VisualElement element, string className)
         {
             return GetFirstAncestor(element, e => e.ClassListContains(className));
         }
