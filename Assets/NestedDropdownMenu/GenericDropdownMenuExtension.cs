@@ -45,16 +45,16 @@ namespace NestedDropdownMenuSystem
             _pointerUpMethodInfo.Invoke(menu, new object[] { evt });
         }
 
-        public static void Hide(this GenericDropdownMenu menu, bool giveFocusBack = false)
-        {
-            if (menu == null) return;
-
-            var hideMethod =
-                typeof(GenericDropdownMenu).GetMethod("Hide", BindingFlags.NonPublic | BindingFlags.Instance);
-            Assert.IsNotNull(hideMethod, "Hide method not found in GenericDropdownMenu");
-
-            hideMethod.Invoke(menu, new object[] { giveFocusBack });
-        }
+        // public static void Hide(this GenericDropdownMenu menu, bool giveFocusBack = false)
+        // {
+        //     if (menu == null) return;
+        //
+        //     var hideMethod =
+        //         typeof(GenericDropdownMenu).GetMethod("Hide", BindingFlags.NonPublic | BindingFlags.Instance);
+        //     Assert.IsNotNull(hideMethod, "Hide method not found in GenericDropdownMenu");
+        //
+        //     hideMethod.Invoke(menu, new object[] { giveFocusBack });
+        // }
 
         public static EventCallback<FocusOutEvent> GetOnFocusOutDelegate(this GenericDropdownMenu menu)
         {

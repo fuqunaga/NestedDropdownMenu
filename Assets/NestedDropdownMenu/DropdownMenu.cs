@@ -21,6 +21,7 @@ namespace NestedDropdownMenuSystem
 
         private GenericMenu? _parentMenu;
         
+        private GenericMenu RootMenu => _parentMenu?.RootMenu ?? this;
         private VisualElement RootMenuContainer => _parentMenu?.RootMenuContainer ?? contentContainer.GetFirstAncestorByClassName(ussClassName);
         private bool IsRootMenu => _parentMenu == null;
 
@@ -70,6 +71,10 @@ namespace NestedDropdownMenuSystem
         private void OnPointerUp(PointerUpEvent evt)
         {
             CallPrivateMethod(nameof(OnPointerUp), evt);
+            if (GetSelectedIndex() != -1)
+            {
+               RootMenu.Hide(true);
+            }
         }
         
         private void HideSubmenuIfItemUnselected()
@@ -80,7 +85,7 @@ namespace NestedDropdownMenuSystem
             {
                 if ( item != selectedItem )
                 {
-                    submenu.Hide();
+                    submenu.HideAsSubmenu();
                 }
             }
         }
@@ -119,6 +124,11 @@ namespace NestedDropdownMenuSystem
             return (int)CallPrivateMethod(nameof(GetSelectedIndex));
         }
 
+        public void Hide(bool giveFocusBack = false)
+        {
+            CallPrivateMethod(nameof(Hide), giveFocusBack);
+        }
+
         public void AddSubmenuItem(string itemName, long delayMs, GenericMenu subMenu)
         {
             AddItem(itemName, false, null);
@@ -154,7 +164,7 @@ namespace NestedDropdownMenuSystem
             RootMenuContainer.Add(_outerContainer);
         }
 
-        private void Hide()
+        private void HideAsSubmenu()
         {
             _outerContainer.RemoveFromHierarchy();
             _parentMenu = null;
