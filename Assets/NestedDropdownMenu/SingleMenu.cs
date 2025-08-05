@@ -19,10 +19,12 @@ namespace NestedDropdownMenuSystem
     /// サブメニューはOuterContainerをルートメニューのMenuContainerにAddする
     /// 
     /// GenericDropdownMenuはポインターのイベントをMenuContainerで受けるがここでは各メニューのOuterContainerで受けるようにしている
-    /// ポインターコールバックの呼び出し順は以下の通り
-    /// - 子要素上にポインターがあればそのポインターイベントが呼ばれる
-    /// - すべての子要素上にポインターがない場合、ルートメニューのMenuContainerに最も子であるメニューのポインターイベントを登録しており、
-    ///   メニュー範囲外のとき選択が解除される
+    /// また、各サブメニューはPointerDown、PointerMoveをルートMenuContainerにも登録している
+    /// さらに各コールバックがStopPropagationをしてそれ以降へ伝播しないことを当て込んでいる
+    ///
+    /// 以上の設定で次の挙動を実現している
+    /// - サブメニュー上にポインターがあればそのポインターイベントが呼ばれイベント終了
+    /// - すべての子要素上にポインターがない場合、MenuContainerに最後に登録された最も子であるPointerDown,PointerMoveが呼ばれメニュー範囲外のとき選択が解除される
     /// </remarks>
     public class SingleMenu : GenericDropdownMenu
     {
