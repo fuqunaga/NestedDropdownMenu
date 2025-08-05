@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable  enable
+
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -30,31 +32,31 @@ namespace NestedDropdownMenuSystem
 
         #region IGenericMenu
 
-        public void AddItem(string itemName, bool isChecked, Action action)
+        public void AddItem(string? itemName, bool isChecked, Action? action)
         {
             var (menu, label) = GetMenuAndLabel(itemName);
             menu.AddItem(label, isChecked, action);
         }
 
-        public void AddItem(string itemName, bool isChecked, Action<object> action, object data)
+        public void AddItem(string? itemName, bool isChecked, Action<object?>? action, object? data)
         {
             var (menu, label) = GetMenuAndLabel(itemName);
-            menu.AddItem(label, isChecked, () => action(data));
+            menu.AddItem(label, isChecked, () => action?.Invoke(data));
         }
 
-        public void AddDisabledItem(string itemName, bool isChecked)
+        public void AddDisabledItem(string? itemName, bool isChecked)
         {
             var (menu, label) = GetMenuAndLabel(itemName);
             menu.AddDisabledItem(label, isChecked);
         }
 
-        public void AddSeparator(string path)
+        public void AddSeparator(string? path)
         {
             var (menu, label) = GetMenuAndLabel(path);
             menu.AddSeparator(label);
         }
 
-        public void DropDown(Rect position, VisualElement targetElement = null, bool anchored = false)
+        public void DropDown(Rect position, VisualElement? targetElement = null, bool anchored = false)
         {
             RootMenu.DropDown(position, targetElement, anchored);
         }
@@ -62,9 +64,9 @@ namespace NestedDropdownMenuSystem
         #endregion
 
 
-        private (SingleMenu menu, string label) GetMenuAndLabel(string itemName)
+        private (SingleMenu menu, string label) GetMenuAndLabel(string? itemName)
         {
-            var (path, label) = ParseItemNameToPathAndLabel(itemName);
+            var (path, label) = ParseItemNameToPathAndLabel(itemName ?? string.Empty);
 
             if (!_menuTable.TryGetValue(path, out var menu))
             {
@@ -78,24 +80,15 @@ namespace NestedDropdownMenuSystem
 
                     // 親メニューにサブメニューアイテムを追加
                     var (parentMenu, menuLabel) = GetMenuAndLabel(path);
-                    AddSubMenuItem(parentMenu, menu, menuLabel);
+                    
+                    const int delayMs = 500;
+                    parentMenu.AddSubmenuItem(menuLabel, delayMs, menu);
                 }
             }
 
             return (menu, label);
         }
-
-        /// <summary>
-        /// サブメニュー用のメニューアイテムを追加 
-        /// </summary>
-        private static void AddSubMenuItem(SingleMenu menu, SingleMenu subMenu, string label)
-        {
-            if (menu == null || subMenu == null) return;
-
-            const int delayMs = 500;
-            menu.AddSubmenuItem(label, delayMs, subMenu);
-        }
-
+        
 
         private static (string path, string label) ParseItemNameToPathAndLabel(string itemName)
         {
