@@ -26,6 +26,8 @@ namespace NestedDropdownMenuSystem
     /// </remarks>
     public class SingleMenu : GenericDropdownMenu
     {
+        #region Static
+        
         #region Access private
         
         private static readonly Action<GenericDropdownMenu, PointerDownEvent> OnPointerDownFunc;
@@ -56,7 +58,6 @@ namespace NestedDropdownMenuSystem
             }
         }
         
-        
         #endregion
         
         private static VisualElement GetFirstAncestorByClassName(VisualElement element, string className)
@@ -74,6 +75,7 @@ namespace NestedDropdownMenuSystem
             throw new InvalidOperationException($"Ancestor with class name '{className}' not found.");
         }
 
+        #endregion
         
         private readonly Dictionary<VisualElement, SingleMenu> _itemToSubmenuTable = new();
         private readonly VisualElement _outerContainer;
@@ -197,31 +199,64 @@ namespace NestedDropdownMenuSystem
         private void ShowAsSubmenu(SingleMenu parentMenu, VisualElement targetElement)
         {
             _parentMenu = parentMenu;
-
-
-            _outerContainer.RegisterCallbackOnce<GeometryChangedEvent>(_ =>
-            {
-                // TODO: ほかのサブメニューも考慮
-                var rectWorld = targetElement.worldBound;
-                var position = RootMenuContainer.WorldToLocal(new Vector2(rectWorld.xMax, rectWorld.yMin));
-
-                // firstItemとtargetElementのYの位置を揃える
-                var offsetY = 0f;
-                var firstItem = _scrollView.Children().FirstOrDefault();
-                if (firstItem != null)
-                {
-                    var fistItemWorldPosition = firstItem.worldBound.position;
-                    var firstItemPositionOnOuterContainer = _outerContainer.WorldToLocal(fistItemWorldPosition);
-                    offsetY = -firstItemPositionOnOuterContainer.y;
-                }
-
-                var style = _outerContainer.style;
-                style.left = position.x;
-                style.top = position.y + offsetY;
-            });
-
+            
+            _outerContainer.RegisterCallbackOnce<GeometryChangedEvent>(_ => UpdateSubmenuPosition(targetElement));
+            
             RootMenuContainer.Add(_outerContainer);
         }
+        
+        /// <summary>
+        /// RootMenuContainerローカル座標系ではみ出ないようにサブメニューの位置を調整する
+        /// </summary>
+        /// <param name="targetElement"></param>
+        private void UpdateSubmenuPosition(VisualElement targetElement)
+        {
+            var rectWorld = targetElement.worldBound;
+            var rootMenuContainer = RootMenuContainer;
+            var position = rootMenuContainer.WorldToLocal(new Vector2(rectWorld.xMax, rectWorld.yMin));
+
+            // firstItemとtargetElementのYの位置を揃える
+            var firstItem = _scrollView.Children().FirstOrDefault();
+            if (firstItem != null)
+            {
+                var fistItemWorldPosition = firstItem.worldBound.position;
+                var firstItemPositionOnOuterContainer = _outerContainer.WorldToLocal(fistItemWorldPosition);
+                position.y -= firstItemPositionOnOuterContainer.y;
+            }
+            
+            
+            var rootRect = rootMenuContainer.layout;
+            var outerContainerRect = _outerContainer.layout;
+            
+            // 右側がルートからはみ出るようなら親メニューの左側に表示する
+            // ただし左側がルートからはみ出すようならルートの左側に揃える
+            if (position.x + outerContainerRect.width > rootRect.width)
+            {
+                if (_parentMenu is { } parentMenu)
+                {
+                    var parentOuterContainerRect = parentMenu._outerContainer.layout;
+                    position.x = Mathf.Max(0f, parentOuterContainerRect.xMin - outerContainerRect.width);
+                }
+            }
+            
+            // 下端がルートからはみ出るようならルートの下端に揃える
+            // ただし上端がルートからはみ出すようならルートの上端に揃える
+            if (position.y + outerContainerRect.height > rootRect.height)
+            {
+                position.y = Mathf.Max(0f, rootRect.height - outerContainerRect.height);
+            }
+
+            var style = _outerContainer.style;
+            style.left = position.x;
+            style.top = position.y;
+            
+            // サブメニューがルートメニューより長い場合は縮めてスクロールビューに頼る
+            if (outerContainerRect.height > rootRect.height)
+            {
+                style.maxHeight = rootRect.height;
+            }
+        }
+        
 
         private void HideAsSubmenu()
         {
