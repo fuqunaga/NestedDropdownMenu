@@ -124,13 +124,13 @@ namespace NestedDropdownMenuSystem
         private void OnPointerDown(PointerDownEvent evt)
         {
             OnPointerDownFunc(this, evt);
-            HideSubmenuIfItemUnselected();
+            HideSubmenusForUnselectedItems();
         }
 
         private void OnPointerMove(PointerMoveEvent evt)
         {
             OnPointerMoveFunc(this, evt);
-            HideSubmenuIfItemUnselected();
+            HideSubmenusForUnselectedItems();
         }
         
         private void OnPointerUp(PointerUpEvent evt)
@@ -145,7 +145,7 @@ namespace NestedDropdownMenuSystem
         #endregion
         
         
-        private void HideSubmenuIfItemUnselected()
+        private void HideSubmenusForUnselectedItems()
         {
             var selectedItem = GetSelectedItem();
             if (selectedItem == null) return;
