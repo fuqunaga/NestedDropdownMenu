@@ -76,13 +76,11 @@ namespace NestedDropdownMenuSystem
                 var isSubMenu = !string.IsNullOrEmpty(path);
                 if (isSubMenu)
                 {
-                    // InitializeSubMenu(menu);
-
                     // 親メニューにサブメニューアイテムを追加
                     var (parentMenu, menuLabel) = GetMenuAndLabel(path);
                     
                     const int delayMs = 500;
-                    parentMenu.AddSubmenuItem(menuLabel, delayMs, menu);
+                    parentMenu.AddSubMenuItem(menuLabel, delayMs, menu);
                 }
             }
 
