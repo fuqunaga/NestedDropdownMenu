@@ -39,6 +39,9 @@ namespace NestedDropdownMenuSystem
     {
         #region Static
         
+        // ReSharper disable once InconsistentNaming
+        public static readonly string rightArrowUssClassName = "nested-dropdown__right-arrow";
+        
         #region Private access
         
         private static readonly Func<GenericDropdownMenu, KeyboardNavigationOperation, bool> ApplyFunc;
@@ -336,6 +339,11 @@ namespace NestedDropdownMenuSystem
         {
             AddItem(itemName, false, null);
             var item = contentContainer.Children().Last();
+
+            var rightArrow = new VisualElement();
+            rightArrow.AddToClassList(rightArrowUssClassName);
+            rightArrow.pickingMode = PickingMode.Ignore;
+            item.Add(rightArrow);
             
             _itemToSubMenuTable[item] = subMenu;
             
@@ -352,11 +360,17 @@ namespace NestedDropdownMenuSystem
             item.RegisterCallback<PointerLeaveEvent>(_ => { scheduledItem?.Pause(); });
         }
 
+        
         private bool ShowSubMenu(VisualElement targetElement, bool selectFirstItem = false)
         {
             if (!_itemToSubMenuTable.TryGetValue(targetElement, out var submenu))
             {
                 Debug.LogWarning($"No submenu found for target element: {targetElement.name}");
+                return false;
+            }
+
+            if (submenu._parentMenu != null)
+            {
                 return false;
             }
             
@@ -366,6 +380,8 @@ namespace NestedDropdownMenuSystem
 
         private void ShowAsSubMenu(SingleMenu parentMenu, VisualElement targetElement, bool selectFirstItem = false)
         {
+            if (_parentMenu != null) return;
+            
             _parentMenu = parentMenu;
             
             _outerContainer.RegisterCallbackOnce<GeometryChangedEvent>(_ => UpdateSubMenuPosition(targetElement));

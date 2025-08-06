@@ -1,0 +1,8 @@
+.nested-dropdown__right-arrow {
+    width: 24px;
+    height: 24px;
+    margin-right: -20px;
+    margin-left: auto;
+    align-self: center;
+    background-image: url("./chevron_right.png");
+}

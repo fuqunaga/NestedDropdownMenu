@@ -1,0 +1,11 @@
+@import url("/Assets/NestedDropdownMenu/NestedDropdownMenuBase.uss");
+
+.nested-dropdown__right-arrow 
+{
+    -unity-background-image-tint-color: #1B1B1B; /* runtime default font color */
+}
+
+.unity-base-dropdown__item:hover > .nested-dropdown__right-arrow 
+{
+    -unity-background-image-tint-color: white; /* runtime default font color */
+}
