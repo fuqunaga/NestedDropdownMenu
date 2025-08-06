@@ -38,18 +38,25 @@ namespace NestedDropdownMenuSystem
     public class SingleMenu : GenericDropdownMenu
     {
         #region Static
-        
-        // ReSharper disable once InconsistentNaming
-        public static readonly string rightArrowUssClassName = "nested-dropdown__right-arrow";
-        
+
+        // ReSharper disable InconsistentNaming
+        // ReSharper disable MemberCanBePrivate.Global
+        public const string subMenuItemUssClassName = "nested-dropdown__submenu-item";
+        public const string rightArrowUssClassName = "nested-dropdown__right-arrow";
+        // ReSharper restore MemberCanBePrivate.Global
+        // ReSharper restore InconsistentNaming
+
         #region Private access
         
         private static readonly Func<GenericDropdownMenu, KeyboardNavigationOperation, bool> ApplyFunc;
         private static readonly Action<GenericDropdownMenu, PointerDownEvent> OnPointerDownFunc;
         private static readonly Action<GenericDropdownMenu, PointerMoveEvent> OnPointerMoveFunc;
         private static readonly Action<GenericDropdownMenu, PointerUpEvent> OnPointerUpFunc;
-        private static readonly Action<GenericDropdownMenu, GeometryChangedEvent> OnInitialDisplayFunc;
         private static readonly Action<GenericDropdownMenu, GeometryChangedEvent> OnContainerGeometryChangedFunc;
+#if UNITY_6000_OR_NEWER
+        private static readonly Action<GenericDropdownMenu, GeometryChangedEvent> OnInitialDisplayFunc;
+#endif
+
         
         private static readonly Action<GenericDropdownMenu, int, int> ChangeSelectedIndexFunc;
         private static readonly Func<GenericDropdownMenu, int> GetSelectedIndexFunc;
@@ -66,8 +73,11 @@ namespace NestedDropdownMenuSystem
             RegisterPrivateMethodToDelegate("OnPointerDown", out OnPointerDownFunc);
             RegisterPrivateMethodToDelegate("OnPointerMove", out OnPointerMoveFunc);
             RegisterPrivateMethodToDelegate("OnPointerUp", out OnPointerUpFunc);
-            RegisterPrivateMethodToDelegate("OnInitialDisplay", out OnInitialDisplayFunc);
             RegisterPrivateMethodToDelegate("OnContainerGeometryChanged", out OnContainerGeometryChangedFunc);
+#if UNITY_6000_OR_NEWER
+            RegisterPrivateMethodToDelegate("OnInitialDisplay", out OnInitialDisplayFunc);
+#endif
+
             RegisterPrivateMethodToDelegate("ChangeSelectedIndex", out ChangeSelectedIndexFunc);
             RegisterPrivateMethodToDelegate("GetSelectedIndex", out GetSelectedIndexFunc);
             RegisterPrivateMethodToDelegate("Hide", out HideFunc);
@@ -109,23 +119,6 @@ namespace NestedDropdownMenuSystem
         
         #endregion
         
-        
-        
-        private static VisualElement GetFirstAncestorByClassName(VisualElement element, string className)
-        {
-            while (element != null)
-            {
-                if (element.ClassListContains(className))
-                {
-                    return element;
-                }
-
-                element = element.parent;
-            }
-
-            throw new InvalidOperationException($"Ancestor with class name '{className}' not found.");
-        }
-
         #endregion
         
         private readonly Dictionary<VisualElement, SingleMenu> _itemToSubMenuTable = new();
@@ -138,7 +131,7 @@ namespace NestedDropdownMenuSystem
         private bool IsRootMenu => _parentMenu == null;
         private bool IsSubMenu => _parentMenu != null;
         private SingleMenu RootMenu => _parentMenu?.RootMenu ?? this;
-        private VisualElement RootMenuContainer => GetFirstAncestorByClassName(RootMenu._outerContainer, ussClassName);
+        private VisualElement RootMenuContainer => RootMenu._outerContainer.GetFirstAncestorByClassName(ussClassName);
         private bool IsCurrentLeafMenu => _itemToSubMenuTable.Values.All(subMenu => subMenu._parentMenu == null);
         private SingleMenu CurrentLeafMenu
         {
@@ -154,8 +147,14 @@ namespace NestedDropdownMenuSystem
         
         public SingleMenu()
         {
-            _outerContainer = GetFirstAncestorByClassName(contentContainer, containerOuterUssClassName);
-            _scrollView = GetFirstAncestorByClassName(contentContainer, containerInnerUssClassName);
+            _outerContainer = contentContainer.GetFirstAncestorByClassName(containerOuterUssClassName);
+            _scrollView = contentContainer.GetFirstAncestorByClassName(containerInnerUssClassName);
+            
+            // Unity2022だとスクロールバーが表示されてしまうので非表示にする
+            if (_scrollView is ScrollView sv)
+            {
+                sv.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
+            }
             
             _outerContainer.RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
             _outerContainer.RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
@@ -163,7 +162,7 @@ namespace NestedDropdownMenuSystem
             // AttachToPanel,DetachFromPanelのコールバックをGenericDropdownMenuから削除する
             // ルートメニューだけでいいがルートメニューかどうかは表示されるまで確定せず、確定後コールバックが呼ばれるまでに削除するのは大変なので
             // ここで一律削除する
-            var menuContainer = GetFirstAncestorByClassName(_outerContainer, ussClassName);
+            var menuContainer = _outerContainer.GetFirstAncestorByClassName(ussClassName);
             var onAttachToPanelDelegate = (EventCallback<AttachToPanelEvent>)OnAttachToPanelMethodInfo.CreateDelegate(typeof(EventCallback<AttachToPanelEvent>), this);
             var onDetachFromPanelDelegate = (EventCallback<DetachFromPanelEvent>)OnDetachFromPanelMethodInfo.CreateDelegate(typeof(EventCallback<DetachFromPanelEvent>), this);
             menuContainer.UnregisterCallback(onAttachToPanelDelegate);
@@ -181,18 +180,6 @@ namespace NestedDropdownMenuSystem
             _outerContainer.RegisterCallback<PointerMoveEvent>(OnPointerMove);
             _outerContainer.RegisterCallback<PointerUpEvent>(OnPointerUp);
             
-
-            if (IsRootMenu)
-            {
-                var rootMenuContainer = RootMenuContainer;
-                rootMenuContainer.RegisterCallback<PointerMoveEvent>(OnPointerMoveOnRoot);
-                rootMenuContainer.RegisterCallback<PointerDownEvent>(OnPointerDownOnRoot);
-                
-                // GenericDropdownMenuのOnAttachToPanelで登録されるコールバックのうち必要なものをセット
-                _scrollView.RegisterCallbackOnce<GeometryChangedEvent>(e => OnInitialDisplayFunc(this, e));
-                _scrollView.RegisterCallback<GeometryChangedEvent>(e => OnContainerGeometryChangedFunc(this, e));
-            }
-
             _scrollView.RegisterCallback<FocusOutEvent>(_ =>
             {
                 if (IsCurrentLeafMenu && GetSelectedIndexFunc(this) >= 0)
@@ -200,6 +187,20 @@ namespace NestedDropdownMenuSystem
                     _scrollView.schedule.Execute(() => contentContainer.Focus());
                 }
             });
+
+            if (IsRootMenu)
+            {
+                var rootMenuContainer = RootMenuContainer;
+                rootMenuContainer.RegisterCallback<PointerMoveEvent>(OnPointerMoveOnRoot);
+                rootMenuContainer.RegisterCallback<PointerDownEvent>(OnPointerDownOnRoot);
+
+                // GenericDropdownMenuのOnAttachToPanelで登録されるコールバックのうち必要なものをセット
+                _scrollView.RegisterCallback<GeometryChangedEvent>(e => OnContainerGeometryChangedFunc(this, e));
+#if UNITY_6000_OR_NEWER
+                _scrollView.RegisterCallbackOnce<GeometryChangedEvent>(e => OnInitialDisplayFunc(this, e));
+#endif
+                
+            }
         }
 
         private void OnDetachFromPanel(DetachFromPanelEvent evt)
@@ -339,6 +340,7 @@ namespace NestedDropdownMenuSystem
         {
             AddItem(itemName, false, null);
             var item = contentContainer.Children().Last();
+            item.AddToClassList(subMenuItemUssClassName);
 
             var rightArrow = new VisualElement();
             rightArrow.AddToClassList(rightArrowUssClassName);
