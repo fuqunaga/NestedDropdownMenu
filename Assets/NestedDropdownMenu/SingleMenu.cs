@@ -37,6 +37,8 @@ namespace NestedDropdownMenuSystem
         private static readonly Action<GenericDropdownMenu, PointerDownEvent> OnPointerDownFunc;
         private static readonly Action<GenericDropdownMenu, PointerMoveEvent> OnPointerMoveFunc;
         private static readonly Action<GenericDropdownMenu, PointerUpEvent> OnPointerUpFunc;
+        private static readonly Action<GenericDropdownMenu, GeometryChangedEvent> OnInitialDisplayFunc;
+        private static readonly Action<GenericDropdownMenu, GeometryChangedEvent> OnContainerGeometryChangedFunc;
         
         private static readonly Action<GenericDropdownMenu, int, int> ChangeSelectedIndexFunc;
         private static readonly Func<GenericDropdownMenu, int> GetSelectedIndexFunc;
@@ -50,6 +52,8 @@ namespace NestedDropdownMenuSystem
             RegisterPrivateMethodToDelegate("OnPointerDown", out OnPointerDownFunc);
             RegisterPrivateMethodToDelegate("OnPointerMove", out OnPointerMoveFunc);
             RegisterPrivateMethodToDelegate("OnPointerUp", out OnPointerUpFunc);
+            RegisterPrivateMethodToDelegate("OnInitialDisplay", out OnInitialDisplayFunc);
+            RegisterPrivateMethodToDelegate("OnContainerGeometryChanged", out OnContainerGeometryChangedFunc);
             RegisterPrivateMethodToDelegate("ChangeSelectedIndex", out ChangeSelectedIndexFunc);
             RegisterPrivateMethodToDelegate("GetSelectedIndex", out GetSelectedIndexFunc);
             RegisterPrivateMethodToDelegate("Hide", out HideFunc);
@@ -107,9 +111,20 @@ namespace NestedDropdownMenuSystem
         private SingleMenu? _parentMenu;
         
         private bool IsRootMenu => _parentMenu == null;
+        private bool IsSubMenu => _parentMenu != null;
         private SingleMenu RootMenu => _parentMenu?.RootMenu ?? this;
         private VisualElement RootMenuContainer => GetFirstAncestorByClassName(RootMenu._outerContainer, ussClassName);
         private bool IsCurrentLeafMenu => _itemToSubMenuTable.Values.All(subMenu => subMenu._parentMenu == null);
+        private SingleMenu CurrentLeafMenu
+        {
+            get
+            {
+                return _itemToSubMenuTable.Values
+                    .Where(subMenu => subMenu.IsSubMenu)
+                    .Select(subMenu => subMenu.CurrentLeafMenu)
+                    .FirstOrDefault() ?? this;
+            }
+        }
         
         
         public SingleMenu()
@@ -120,10 +135,10 @@ namespace NestedDropdownMenuSystem
             _outerContainer.RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
             _outerContainer.RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
 
-            // var myMenuContainer = GetFirstAncestorByClassName(_outerContainer, ussClassName);
-            // var onAttachToPanelMethodInfo = typeof(GenericDropdownMenu).GetMethod("OnAttachToPanel", BindingFlags.NonPublic | BindingFlags.Instance);
-            // var onAttachToPanelDelegate = (EventCallback<AttachToPanelEvent>)onAttachToPanelMethodInfo.CreateDelegate(typeof(EventCallback<AttachToPanelEvent>), this);
-            // myMenuContainer.UnregisterCallback(onAttachToPanelDelegate);
+            var myMenuContainer = GetFirstAncestorByClassName(_outerContainer, ussClassName);
+            var onAttachToPanelMethodInfo = typeof(GenericDropdownMenu).GetMethod("OnAttachToPanel", BindingFlags.NonPublic | BindingFlags.Instance);
+            var onAttachToPanelDelegate = (EventCallback<AttachToPanelEvent>)onAttachToPanelMethodInfo.CreateDelegate(typeof(EventCallback<AttachToPanelEvent>), this);
+            myMenuContainer.UnregisterCallback(onAttachToPanelDelegate);
         }
 
         #region Callbacks
@@ -137,17 +152,24 @@ namespace NestedDropdownMenuSystem
             _outerContainer.RegisterCallback<PointerMoveEvent>(OnPointerMove);
             _outerContainer.RegisterCallback<PointerUpEvent>(OnPointerUp);
             
-            var rootMenuContainer = RootMenuContainer;
-            rootMenuContainer.RegisterCallback<PointerDownEvent>(OnPointerDownOnRoot);
-            rootMenuContainer.RegisterCallback<PointerMoveEvent>(OnPointerMove);
+            
 
             if (IsRootMenu)
             {
+                var rootMenuContainer = RootMenuContainer;
+                rootMenuContainer.RegisterCallback<PointerMoveEvent>(OnPointerMoveOnRoot);
+                rootMenuContainer.RegisterCallback<PointerDownEvent>(OnPointerDownOnRoot);
+                
+                // GenericDropdownMenuのOnAttachToPanelで登録されるコールバックのうち必要なものをセット
+                _scrollView.RegisterCallbackOnce<GeometryChangedEvent>(e => OnInitialDisplayFunc(this, e));
+                _scrollView.RegisterCallback<GeometryChangedEvent>(e => OnContainerGeometryChangedFunc(this, e));
+                
+                
                 // Unregister GenericDropdownMenu's callbacks
-                var navigationManipulatorField = typeof(GenericDropdownMenu)
-                    .GetField("m_NavigationManipulator", BindingFlags.NonPublic | BindingFlags.Instance);
-                var navigationManipulator = navigationManipulatorField?.GetValue(this) as KeyboardNavigationManipulator;
-                contentContainer.RemoveManipulator(navigationManipulator);
+                // var navigationManipulatorField = typeof(GenericDropdownMenu)
+                //     .GetField("m_NavigationManipulator", BindingFlags.NonPublic | BindingFlags.Instance);
+                // var navigationManipulator = navigationManipulatorField?.GetValue(this) as KeyboardNavigationManipulator;
+                // contentContainer.RemoveManipulator(navigationManipulator);
                 
                 var onFocusOutMethodInfo = typeof(GenericDropdownMenu)
                     .GetMethod("OnFocusOut", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -166,8 +188,8 @@ namespace NestedDropdownMenuSystem
                 }
             });
             
-            _scrollView.RegisterCallback<FocusInEvent>(e => Debug.Log($"FocusInEvent called in {contentContainer.name}"));
-            _scrollView.RegisterCallback<FocusOutEvent>(e => Debug.Log($"FocusOutEvent called in {contentContainer.name}"));
+            // _scrollView.RegisterCallback<FocusInEvent>(e => Debug.Log($"FocusInEvent called in {contentContainer.name}"));
+            // _scrollView.RegisterCallback<FocusOutEvent>(e => Debug.Log($"FocusOutEvent called in {contentContainer.name}"));
         }
 
         private void OnDetachFromPanel(DetachFromPanelEvent evt)
@@ -185,7 +207,7 @@ namespace NestedDropdownMenuSystem
 
         private void OnNavigation(KeyboardNavigationOperation operation, EventBase evt)
         {
-            Debug.Log("OnNavigation called with operation: " + operation);
+            Debug.Log($"OnNavigation called with operation: {operation} in {contentContainer.name}");
             var eventUsed = ApplyFunc(this, operation);
             
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
@@ -209,7 +231,7 @@ namespace NestedDropdownMenuSystem
                 
                 case KeyboardNavigationOperation.MoveLeft:
                     // サブメニューを閉じる
-                    if (!IsRootMenu)
+                    if (IsSubMenu)
                     {
                         HideAsSubMenu();
                         _parentMenu?.contentContainer.Focus();
@@ -230,12 +252,6 @@ namespace NestedDropdownMenuSystem
             HideSubMenusForUnselectedItems();
         }
         
-        private void OnPointerDownOnRoot(PointerDownEvent evt)
-        {
-            HideFunc(this, true);
-        }
-
-
         private void OnPointerMove(PointerMoveEvent evt)
         {
             OnPointerMoveFunc(this, evt);
@@ -253,7 +269,7 @@ namespace NestedDropdownMenuSystem
             {
                 OnPointerUpFunc(this, evt);
 
-                if (!IsRootMenu)
+                if (IsSubMenu)
                 {
                     HideRootMenu(true);
                 }
@@ -262,6 +278,18 @@ namespace NestedDropdownMenuSystem
             evt.StopPropagation();
         }
 
+        
+        private void OnPointerDownOnRoot(PointerDownEvent evt)
+        {
+            HideFunc(this, true);
+        }
+        
+        private void OnPointerMoveOnRoot(PointerMoveEvent evt)
+        {
+            OnPointerMoveFunc(CurrentLeafMenu, evt);
+            HideSubMenusForUnselectedItems();
+        }
+        
         #endregion
         
         
