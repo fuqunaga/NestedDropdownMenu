@@ -303,8 +303,13 @@ namespace NestedDropdownMenuSystem
         private void OnPointerUp(PointerUpEvent evt)
         {
             // OnPointerUpFuncはSelectedItemがあればそのアクションを行ってHide()するが、
-            // サブメニューアイテムが選択されている場合は閉じないで欲しいのでOnPointerUpFuncを呼ばない
-            if (!IsSelectedItemSubMenuItem())
+            // サブメニューアイテムとDisabledアイテムの場合は閉じないで欲しいのでOnPointerUpFuncを呼ばない
+            var selectedItem = GetSelectedItem();
+            var isActionable = selectedItem != null && 
+                !_itemToSubMenuTable.ContainsKey(selectedItem) &&
+                selectedItem.enabledSelf;
+            
+            if (isActionable)
             {
                 OnPointerUpFunc(this, evt);
 
@@ -341,13 +346,6 @@ namespace NestedDropdownMenuSystem
         }
         
         #endregion
-        
-        
-        private bool IsSelectedItemSubMenuItem()
-        {
-            var selectedItem = GetSelectedItem();
-            return selectedItem != null && _itemToSubMenuTable.ContainsKey(selectedItem);
-        }
         
         private void HideRootMenu(bool giveFocusBack = false)
         {
