@@ -226,28 +226,31 @@ namespace NestedDropdownMenuSystem
 
         private void OnNavigation(KeyboardNavigationOperation operation, EventBase evt)
         {
-            var eventUsed = ApplyFunc(this, operation);
+            var eventUsed = false;
             
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-            // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
             switch (operation)
             {
                 // サブメニュー時、GenericDropdownMenuのApplyメソッドではルートメニューは閉じないのでここで閉じる
                 case KeyboardNavigationOperation.Cancel:
-                case KeyboardNavigationOperation.Submit:
                     HideRootMenu(true);
+                    break;
+                
+                case KeyboardNavigationOperation.Submit:
+                    var subMenuShown = ShowSubMenuIfSelectedItemIsSubMenu();
+                    if(!subMenuShown)
+                    {
+                        ApplyFunc(this, operation);
+                        HideRootMenu(true);
+                    }
+                    eventUsed = true;
                     break;
                 
                 case KeyboardNavigationOperation.MoveRight:
                     // サブメニューを表示する
-                    var selectedItem = GetSelectedItem();
-                    if (selectedItem != null)
+                    if (ShowSubMenuIfSelectedItemIsSubMenu())
                     {
-                        if ( _itemToSubMenuTable.TryGetValue(selectedItem, out var submenu) && submenu._parentMenu == null)
-                        {
-                            submenu.ShowAsSubMenu(this, selectedItem, true);
-                            eventUsed = true;
-                        }
+                        eventUsed = true;
                     }
                     break;
                 
@@ -260,11 +263,28 @@ namespace NestedDropdownMenuSystem
                         eventUsed = true;
                     }
                     break;
+                
+                default:
+                    eventUsed = ApplyFunc(this, operation);
+                    break;
             }
 
             if (eventUsed)
             {
                 evt.StopPropagation();
+            }
+
+            return;
+                
+            bool ShowSubMenuIfSelectedItemIsSubMenu()
+            {
+                var selectedItem = GetSelectedItem();
+                if (selectedItem != null && _itemToSubMenuTable.TryGetValue(selectedItem, out var submenu) && submenu._parentMenu == null)
+                {
+                    submenu.ShowAsSubMenu(this, selectedItem, true);
+                    return true;
+                }
+                return false;
             }
         }
         
@@ -282,12 +302,9 @@ namespace NestedDropdownMenuSystem
         
         private void OnPointerUp(PointerUpEvent evt)
         {
-            var selectedItem = GetSelectedItem();
-            
             // OnPointerUpFuncはSelectedItemがあればそのアクションを行ってHide()するが、
             // サブメニューアイテムが選択されている場合は閉じないで欲しいのでOnPointerUpFuncを呼ばない
-            var isSelectedItemSubMenuItem = selectedItem != null && _itemToSubMenuTable.ContainsKey(selectedItem);
-            if (!isSelectedItemSubMenuItem)
+            if (!IsSelectedItemSubMenuItem())
             {
                 OnPointerUpFunc(this, evt);
 
@@ -325,6 +342,12 @@ namespace NestedDropdownMenuSystem
         
         #endregion
         
+        
+        private bool IsSelectedItemSubMenuItem()
+        {
+            var selectedItem = GetSelectedItem();
+            return selectedItem != null && _itemToSubMenuTable.ContainsKey(selectedItem);
+        }
         
         private void HideRootMenu(bool giveFocusBack = false)
         {
