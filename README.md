@@ -1,5 +1,10 @@
 # NestedDropdownMenu
 
+NestedDropdownMenu is Unity's GenericDropdownMenu-based hierarchical menus.
+
+<img width="1758" height="808" alt="image" src="https://github.com/user-attachments/assets/31e05f89-11c2-4d7b-9845-735bc57252fc" />
+
+
 ## License
 
 This project is licensed under the [Your Project's License].
