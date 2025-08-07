@@ -226,7 +226,9 @@ namespace NestedDropdownMenuSystem
 
         private void OnNavigation(KeyboardNavigationOperation operation, EventBase evt)
         {
-            var eventUsed = false;
+            // イベントを消費しないとMoveRightなどでフォーカスが移動していまうので基本消費する
+            // ApplyFunc()のみ実装に任せる
+            var eventUsed = true;
             
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
             switch (operation)
@@ -243,24 +245,20 @@ namespace NestedDropdownMenuSystem
                         ApplyFunc(this, operation);
                         HideRootMenu(true);
                     }
-                    eventUsed = true;
                     break;
                 
                 case KeyboardNavigationOperation.MoveRight:
-                    // サブメニューを表示する
-                    if (ShowSubMenuIfSelectedItemIsSubMenu())
-                    {
-                        eventUsed = true;
-                    }
+                    ShowSubMenuIfSelectedItemIsSubMenu();
                     break;
                 
                 case KeyboardNavigationOperation.MoveLeft:
-                    // サブメニューを閉じる
                     if (IsSubMenu)
                     {
+                        if ( _parentMenu?.contentContainer is { } focusTarget)
+                        {
+                            focusTarget.schedule.Execute(() => focusTarget.Focus());
+                        }
                         HideAsSubMenu();
-                        _parentMenu?.contentContainer.Focus();
-                        eventUsed = true;
                     }
                     break;
                 
@@ -298,6 +296,14 @@ namespace NestedDropdownMenuSystem
         {
             OnPointerMoveFunc(this, evt);
             HideSubMenusForUnselectedItems();
+            
+            // 末端メニューにフォーカス
+            // サブメニューがある状態で親メニュー上でポインターが動きサブメニューが消えた場合、
+            // フォーカスがどこにも当たっていない状態になるので末端メニューにフォーカスする
+            if (IsCurrentLeafMenu)
+            {
+                contentContainer.schedule.Execute(() => contentContainer.Focus());
+            }
         }
         
         private void OnPointerUp(PointerUpEvent evt)
