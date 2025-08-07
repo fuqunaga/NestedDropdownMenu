@@ -15,7 +15,7 @@ namespace NestedDropdownMenuSystem.Sample.Editor
         private void CreateGUI()
         {
             var root = rootVisualElement;
-            root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Sample/Editor/NestedDropdownMenuSampleEditor.uss"));
+            root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/NestedDropdownMenu/NestedDropdownMenu.uss"));
             root.Add(SampleMenu.CreateGenericDropdownMenuButton());
             root.Add(SampleMenu.CreateNestedDropdownMenuButton());
         }

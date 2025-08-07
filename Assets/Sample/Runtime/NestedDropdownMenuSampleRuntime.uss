@@ -1,4 +1,4 @@
-@import url("/Assets/NestedDropdownMenu/NestedDropdownMenuBase.uss");
+@import url("/Assets/NestedDropdownMenu/NestedDropdownMenu.uss");
 
 .nested-dropdown__right-arrow 
 {
