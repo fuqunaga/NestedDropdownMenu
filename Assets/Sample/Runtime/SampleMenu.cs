@@ -112,11 +112,11 @@ namespace NestedDropdownMenuSystem.Sample.Runtime
             menu.AddDisabledItem("Item3 (Disabled)", false);
             menu.AddSeparator("");
             menu.AddItem("Sub0/Item1", false, () => Debug.Log("Sub0/Item1 clicked"));
-            menu.AddItem("Sub0/Item2(Checked)", false, () => Debug.Log("Sub0/Item2 clicked"));
+            menu.AddItem("Sub0/Item2(Checked)", true, () => Debug.Log("Sub0/Item2 clicked"));
             menu.AddDisabledItem("Sub0/Item3 (Disabled)", false);
             menu.AddSeparator("Sub0/");
             menu.AddItem("Sub0/Sub1/Item1", false, () => Debug.Log("Sub0/Sub1/Item1 clicked"));
-            menu.AddItem("Sub0/Sub1/Item2(Checked)", false, () => Debug.Log("Sub0/Sub1/Item2 clicked"));
+            menu.AddItem("Sub0/Sub1/Item2(Checked)", true, () => Debug.Log("Sub0/Sub1/Item2 clicked"));
             menu.AddDisabledItem("Sub0/Sub1/Item3 (Disabled)", false);
 
             menu.DropDown(rect, targetElement, anchored);
@@ -130,11 +130,11 @@ namespace NestedDropdownMenuSystem.Sample.Runtime
             menu.AddDisabledItem("Item3 (Disabled)", false);
             menu.AddSeparator("");
             menu.AddItem("Sub0/Item1", false, () => Debug.Log("Sub0/Item1 clicked"));
-            menu.AddItem("Sub0/Item2(Checked)", false, () => Debug.Log("Sub0/Item2 clicked"));
+            menu.AddItem("Sub0/Item2(Checked)", true, () => Debug.Log("Sub0/Item2 clicked"));
             menu.AddDisabledItem("Sub0/Item3 (Disabled)", false);
             menu.AddSeparator("Sub0/");
             menu.AddItem("Sub0/Sub1/Item1", false, () => Debug.Log("Sub0/Sub1/Item1 clicked"));
-            menu.AddItem("Sub0/Sub1/Item2(Checked)", false, () => Debug.Log("Sub0/Sub1/Item2 clicked"));
+            menu.AddItem("Sub0/Sub1/Item2(Checked)", true, () => Debug.Log("Sub0/Sub1/Item2 clicked"));
             menu.AddDisabledItem("Sub0/Sub1/Item3 (Disabled)", false);
 
             menu.DropDown(rect, targetElement, anchored);
