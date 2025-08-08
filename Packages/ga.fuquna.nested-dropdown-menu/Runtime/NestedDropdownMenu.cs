@@ -30,7 +30,7 @@ namespace NestedDropdownMenuSystem
         }
 
 
-        #region IGenericMenu
+        #region IGenericMenu like methods
 
         public void AddItem(string? itemName, bool isChecked, Action? action)
         {
