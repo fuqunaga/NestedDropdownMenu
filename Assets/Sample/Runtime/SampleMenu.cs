@@ -33,7 +33,7 @@ namespace NestedDropdownMenuSystem.Sample.Runtime
             
             var textField = new TextField
             {
-                value = MenuCodeString,
+                value = SyntaxHighlighter.Highlight(MenuCodeString),
                 isReadOnly = true,
                 style =
                 {
@@ -41,6 +41,8 @@ namespace NestedDropdownMenuSystem.Sample.Runtime
                     marginBottom = 10,
                 }
             };
+            var textElement = textField.Q<TextElement>();
+            textElement.enableRichText = true;
             
             var row = new VisualElement
             {
