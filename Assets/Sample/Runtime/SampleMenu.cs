@@ -19,7 +19,7 @@ namespace NestedDropdownMenuSystem.Sample.Runtime
                 }
             };
             
-            var title = new Label("<b>Nested Dropdown Menu Sample</b>")
+            var title = new Label("<b>Nested Dropdown Menu</b>")
             {
                 style =
                 {
@@ -28,7 +28,7 @@ namespace NestedDropdownMenuSystem.Sample.Runtime
                 }
             };
 
-            var detail = new Label("NestedDropdownMenu is Unity's GenericDropdownMenu-based hierarchical menus.\n"+
+            var detail = new Label("NestedDropdownMenu is Unity's GenericDropdownMenu-based hierarchical menu.\n"+
                                    "Right-click each button to display the menu.");
             
             var textField = new TextField

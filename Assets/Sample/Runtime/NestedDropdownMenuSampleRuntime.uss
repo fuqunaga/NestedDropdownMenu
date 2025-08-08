@@ -1,5 +1,3 @@
-@import url("/Assets/NestedDropdownMenu/NestedDropdownMenu.uss");
-
 .nested-dropdown__right-arrow 
 {
     -unity-background-image-tint-color: #1B1B1B; /* runtime default font color */

@@ -1,0 +1,19 @@
+{
+  "name": "ga.fuquna.nested-dropdown-menu",
+  "version": "1.0.0",
+  "displayName": "NestedDropdownMenu",
+  "description": "Unity's GenericDropdownMenu-based hierarchical menus",
+  "unity": "2022.3",
+  "keywords": [
+      "UIToolkit",
+      "ui",
+      "ga.fuquna"
+  ],
+  "author": {
+    "name": "fuqunaga",
+    "email": "fukhid@gmail.com",
+    "url": "https://fuquna.ga"
+  },
+  "repository": "github:fuqunaga/NestedDropdownMenu",
+  "license": "MIT AND Apache-2.0"
+}
