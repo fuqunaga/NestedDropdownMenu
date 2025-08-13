@@ -131,7 +131,7 @@ namespace NestedDropdownMenuSystem
         private SingleMenu? _parentMenu;
         
         private bool IsRootMenu { get; set; }
-        private bool IsSubMenu => _parentMenu != null;
+        private bool IsActiveSubMenu => _parentMenu != null;
         private SingleMenu RootMenu => _parentMenu?.RootMenu ?? this;
         private VisualElement RootMenuContainer => RootMenu._outerContainer.GetFirstAncestorByClassName(ussClassName);
         private bool IsCurrentLeafMenu => _itemToSubMenuTable.Values.All(subMenu => subMenu._parentMenu == null);
@@ -140,7 +140,7 @@ namespace NestedDropdownMenuSystem
             get
             {
                 return _itemToSubMenuTable.Values
-                    .Where(subMenu => subMenu.IsSubMenu)
+                    .Where(subMenu => subMenu.IsActiveSubMenu)
                     .Select(subMenu => subMenu.CurrentLeafMenu)
                     .FirstOrDefault() ?? this;
             }
@@ -182,6 +182,7 @@ namespace NestedDropdownMenuSystem
             _outerContainer.RegisterCallback<PointerDownEvent>(OnPointerDown);
             _outerContainer.RegisterCallback<PointerMoveEvent>(OnPointerMove);
             _outerContainer.RegisterCallback<PointerUpEvent>(OnPointerUp);
+            _outerContainer.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
 
             _scrollView.RegisterCallback<FocusOutEvent>(OnFocusOut);
 
@@ -207,6 +208,7 @@ namespace NestedDropdownMenuSystem
             _outerContainer.UnregisterCallback<PointerDownEvent>(OnPointerDown);
             _outerContainer.UnregisterCallback<PointerMoveEvent>(OnPointerMove);
             _outerContainer.UnregisterCallback<PointerUpEvent>(OnPointerUp);
+            _outerContainer.UnregisterCallback<PointerLeaveEvent>(OnPointerLeave);
             
             _scrollView.UnregisterCallback<FocusOutEvent>(OnFocusOut);
 
@@ -252,7 +254,7 @@ namespace NestedDropdownMenuSystem
                     break;
                 
                 case KeyboardNavigationOperation.MoveLeft:
-                    if (IsSubMenu)
+                    if (IsActiveSubMenu)
                     {
                         if ( _parentMenu?.contentContainer is { } focusTarget)
                         {
@@ -296,9 +298,15 @@ namespace NestedDropdownMenuSystem
         {
             OnPointerMoveFunc(this, evt);
             HideSubMenusForUnselectedItems();
-            
+
+            var activeSubMenuItem = GetActiveSubMenuItem();
+            if (activeSubMenuItem != null)
+            {
+                SelectItem(activeSubMenuItem);
+            }
+
             // 末端メニューにフォーカス
-            // サブメニューがある状態で親メニュー上でポインターが動きサブメニューが消えた場合、
+            // 親メニュー上でポインターが動き、子のサブメニューが消えた場合、
             // フォーカスがどこにも当たっていない状態になるので末端メニューにフォーカスする
             if (IsCurrentLeafMenu)
             {
@@ -319,7 +327,7 @@ namespace NestedDropdownMenuSystem
             {
                 OnPointerUpFunc(this, evt);
 
-                if (IsSubMenu)
+                if (IsActiveSubMenu)
                 {
                     HideRootMenu(true);
                 }
@@ -328,11 +336,23 @@ namespace NestedDropdownMenuSystem
             evt.StopPropagation();
         }
         
+        
+        // PointerLeaveEventのPreDispatchでホバー状態を解除されてしまう
+        // アクティブなサブメニューがある場合は対応するアイテムをホバー（選択状態）にする
+        private void OnPointerLeave(PointerLeaveEvent evt)
+        {
+            var item = GetActiveSubMenuItem();
+            if (item != null)
+            {
+                SelectItem(item);
+            }
+        }
+
+        
         // GenericDropdownMenuのFocusOutEventを参照
         // フォーカスがメニューアイテムに移動しても強制的にスクロールビューに戻す
         private void OnFocusOut(FocusOutEvent evt)
         {
-            // サブメニューが開いている場合はフォーカスアウトしても閉じない
             if (IsCurrentLeafMenu && GetSelectedIndexFunc(this) >= 0)
             {
                 _scrollView.schedule.Execute(() => contentContainer.Focus());
@@ -371,6 +391,19 @@ namespace NestedDropdownMenuSystem
                 }
             }
         }
+
+
+        private void SelectItem(VisualElement element)
+        {
+            element.AddPseudoStatesHover();
+        }
+
+        private VisualElement? GetActiveSubMenuItem()
+        {
+            return _itemToSubMenuTable.Where(pair => pair.Value.IsActiveSubMenu)
+                .Select(pair => pair.Key)
+                .FirstOrDefault();
+        }
         
         private VisualElement? GetSelectedItem()
         {
@@ -384,7 +417,6 @@ namespace NestedDropdownMenuSystem
                 .Where(ve => ve.ClassListContains(itemUssClassName))
                 .ElementAt(selectedIndex);
         }
-        
 
         public void AddSubMenuItem(string itemName, long delayMs, SingleMenu subMenu)
         {
@@ -418,7 +450,7 @@ namespace NestedDropdownMenuSystem
             
             _parentMenu = parentMenu;
             
-            _outerContainer.RegisterCallbackOnce<GeometryChangedEvent>(_ => UpdateSubMenuPosition(targetElement));
+            _outerContainer.RegisterCallbackOnce<GeometryChangedEvent>(_ => EnsureSubMenuPosition(targetElement));
             
             RootMenuContainer.Add(_outerContainer);
             
@@ -434,7 +466,7 @@ namespace NestedDropdownMenuSystem
         /// RootMenuContainerローカル座標系ではみ出ないようにサブメニューの位置を調整する
         /// </summary>
         /// <param name="targetElement"></param>
-        private void UpdateSubMenuPosition(VisualElement targetElement)
+        private void EnsureSubMenuPosition(VisualElement targetElement)
         {
             var rectWorld = targetElement.worldBound;
             var rootMenuContainer = RootMenuContainer;
