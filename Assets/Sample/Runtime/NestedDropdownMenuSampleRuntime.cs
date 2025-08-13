@@ -20,6 +20,9 @@ namespace NestedDropdownMenuSystem.Sample.Runtime
             var sample = SampleMenu.CreateElement();
             sample.style.backgroundColor = Color.darkGray;
 
+            var textInput = sample.Q(className: TextField.inputUssClassName);
+            textInput.style.backgroundColor = new Color(0.13f, 0.13f, 0.13f);
+
             var root = uiDocument.rootVisualElement;
             root.Add(sample);
         }
