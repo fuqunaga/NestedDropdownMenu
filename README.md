@@ -2,7 +2,11 @@
 
 Nested dropdown menus built with Unity UI Toolkit's GenericDropdownMenu, supporting runtime operations.
 
-<img width="1758" height="808" alt="image" src="https://github.com/user-attachments/assets/31e05f89-11c2-4d7b-9845-735bc57252fc" />
+EditorWindow
+<img width="1132" height="662" alt="image" src="https://github.com/user-attachments/assets/63d5ae62-a187-401b-8803-87b57521eda0" />
+
+Runtime
+<img width="1279" height="806" alt="image" src="https://github.com/user-attachments/assets/0caacf0c-9f8b-47d9-a078-add1a518fd7c" />
 
 
 ## License
