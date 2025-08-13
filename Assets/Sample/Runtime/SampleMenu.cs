@@ -66,9 +66,9 @@ namespace NestedDropdownMenuSystem.Sample.Runtime
 
             return container;
         }
-        
-        
-        public static Button CreateGenericDropdownMenuButton(
+
+
+        private static Button CreateGenericDropdownMenuButton(
             string text = "GenericDropdownMenu")
         {
             return CreateButton(text, (evt, button) =>
@@ -76,8 +76,8 @@ namespace NestedDropdownMenuSystem.Sample.Runtime
                 ShowGenericDropdownMenu(new Rect(evt.mousePosition, Vector2.zero), button);
             });
         }
-        
-        public static Button CreateNestedDropdownMenuButton(
+
+        private static Button CreateNestedDropdownMenuButton(
             string text = "NestedDropdownMenu")
         {
             return CreateButton(text, (evt, button) =>
@@ -103,54 +103,54 @@ namespace NestedDropdownMenuSystem.Sample.Runtime
             });
             return button;
         }
-        
-        public static void ShowGenericDropdownMenu(Rect rect, VisualElement targetElement, bool anchored = false)
+
+        private static void ShowGenericDropdownMenu(Rect rect, VisualElement targetElement, bool anchored = false)
         {
             var menu = new GenericDropdownMenu();
             menu.AddItem("Item1", false, () => Debug.Log("Item1 clicked"));
-            menu.AddItem("Item2(Checked)", true, () => Debug.Log("Item2 clicked"));
+            menu.AddItem("Item2 (Checked)", true, () => Debug.Log("Item2 clicked"));
             menu.AddDisabledItem("Item3 (Disabled)", false);
             menu.AddSeparator("");
             menu.AddItem("Sub0/Item1", false, () => Debug.Log("Sub0/Item1 clicked"));
-            menu.AddItem("Sub0/Item2(Checked)", true, () => Debug.Log("Sub0/Item2 clicked"));
+            menu.AddItem("Sub0/Item2 (Checked)", true, () => Debug.Log("Sub0/Item2 clicked"));
             menu.AddDisabledItem("Sub0/Item3 (Disabled)", false);
             menu.AddSeparator("Sub0/");
             menu.AddItem("Sub0/Sub1/Item1", false, () => Debug.Log("Sub0/Sub1/Item1 clicked"));
-            menu.AddItem("Sub0/Sub1/Item2(Checked)", true, () => Debug.Log("Sub0/Sub1/Item2 clicked"));
+            menu.AddItem("Sub0/Sub1/Item2 (Checked)", true, () => Debug.Log("Sub0/Sub1/Item2 clicked"));
             menu.AddDisabledItem("Sub0/Sub1/Item3 (Disabled)", false);
 
             menu.DropDown(rect, targetElement, anchored);
         }
 
-        public static void ShowNestedDropdownMenu(Rect rect, VisualElement targetElement, bool anchored = false)
+        private static void ShowNestedDropdownMenu(Rect rect, VisualElement targetElement, bool anchored = false)
         {
             var menu = new NestedDropdownMenu();
             menu.AddItem("Item1", false, () => Debug.Log("Item1 clicked"));
-            menu.AddItem("Item2(Checked)", true, () => Debug.Log("Item2 clicked"));
+            menu.AddItem("Item2 (Checked)", true, () => Debug.Log("Item2 clicked"));
             menu.AddDisabledItem("Item3 (Disabled)", false);
             menu.AddSeparator("");
             menu.AddItem("Sub0/Item1", false, () => Debug.Log("Sub0/Item1 clicked"));
-            menu.AddItem("Sub0/Item2(Checked)", true, () => Debug.Log("Sub0/Item2 clicked"));
+            menu.AddItem("Sub0/Item2 (Checked)", true, () => Debug.Log("Sub0/Item2 clicked"));
             menu.AddDisabledItem("Sub0/Item3 (Disabled)", false);
             menu.AddSeparator("Sub0/");
             menu.AddItem("Sub0/Sub1/Item1", false, () => Debug.Log("Sub0/Sub1/Item1 clicked"));
-            menu.AddItem("Sub0/Sub1/Item2(Checked)", true, () => Debug.Log("Sub0/Sub1/Item2 clicked"));
+            menu.AddItem("Sub0/Sub1/Item2 (Checked)", true, () => Debug.Log("Sub0/Sub1/Item2 clicked"));
             menu.AddDisabledItem("Sub0/Sub1/Item3 (Disabled)", false);
 
             menu.DropDown(rect, targetElement, anchored);
         }
 
 
-        public const string MenuCodeString = @"menu.AddItem(""Item1"", false, () => Debug.Log(""Item1 clicked""));
-menu.AddItem(""Item2(Checked)"", true, () => Debug.Log(""Item2 clicked""));
+        private const string MenuCodeString = @"menu.AddItem(""Item1"", false, () => Debug.Log(""Item1 clicked""));
+menu.AddItem(""Item2 (Checked)"", true, () => Debug.Log(""Item2 clicked""));
 menu.AddDisabledItem(""Item3 (Disabled)"", false);
 menu.AddSeparator("""");
 menu.AddItem(""Sub0/Item1"", false, () => Debug.Log(""Sub0/Item1 clicked""));
-menu.AddItem(""Sub0/Item2(Checked)"", false, () => Debug.Log(""Sub0/Item2 clicked""));
+menu.AddItem(""Sub0/Item2 (Checked)"", false, () => Debug.Log(""Sub0/Item2 clicked""));
 menu.AddDisabledItem(""Sub0/Item3 (Disabled)"", false);
 menu.AddSeparator(""Sub0/"");
 menu.AddItem(""Sub0/Sub1/Item1"", false, () => Debug.Log(""Sub0/Sub1/Item1 clicked""));
-menu.AddItem(""Sub0/Sub1/Item2(Checked)"", false, () => Debug.Log(""Sub0/Sub1/Item2 clicked""));
+menu.AddItem(""Sub0/Sub1/Item2 (Checked)"", false, () => Debug.Log(""Sub0/Sub1/Item2 clicked""));
 menu.AddDisabledItem(""Sub0/Sub1/Item3 (Disabled)"", false);
 ";
     }
