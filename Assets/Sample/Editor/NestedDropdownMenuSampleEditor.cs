@@ -9,9 +9,13 @@ namespace NestedDropdownMenuSystem.Sample.Editor
         [MenuItem("NestedDropdownMenu/Sample")]
         public static void ShowWindow()
         {
-            GetWindow<NestedDropdownMenuSampleEditor>("Nested Dropdown Menu Sample");
+            var window = GetWindow<NestedDropdownMenuSampleEditor>("Nested Dropdown Menu Sample");
+            var pos = window.position;
+            pos.width = 600;
+            pos.height = 400;
+            window.position = pos;
         }
-
+        
         private void CreateGUI()
         {
             var root = rootVisualElement;
