@@ -3,10 +3,17 @@
 Nested dropdown menus built with Unity UI Toolkit's GenericDropdownMenu, supporting runtime operations.
 
 EditorWindow
-<img width="1132" height="662" alt="image" src="https://github.com/user-attachments/assets/63d5ae62-a187-401b-8803-87b57521eda0" />
+<img  src="https://github.com/user-attachments/assets/63d5ae62-a187-401b-8803-87b57521eda0" />
 
 Runtime
-<img width="1279" height="806" alt="image" src="https://github.com/user-attachments/assets/0caacf0c-9f8b-47d9-a078-add1a518fd7c" />
+<img src="https://github.com/user-attachments/assets/0caacf0c-9f8b-47d9-a078-add1a518fd7c" />
+
+# Installation
+
+Add the following address to Unity PackageManager.  
+```
+https://github.com/fuqunaga/NestedDropdownMenu.git?path=/Packages/ga.fuquna.nested-dropdown-menu
+```
 
 
 ## License
