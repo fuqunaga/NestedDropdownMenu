@@ -61,7 +61,6 @@ namespace NestedDropdownMenuSystem
 #endif
 
         
-        private static readonly Action<GenericDropdownMenu, int, int> ChangeSelectedIndexFunc;
         private static readonly Func<GenericDropdownMenu, int> GetSelectedIndexFunc;
         private static readonly Action<GenericDropdownMenu, bool> HideFunc;
 
@@ -80,7 +79,6 @@ namespace NestedDropdownMenuSystem
 #if UNITY_6000_0_OR_NEWER
             RegisterPrivateMethodToDelegate("OnInitialDisplay", out OnInitialDisplayFunc);
 #endif
-            RegisterPrivateMethodToDelegate("ChangeSelectedIndex", out ChangeSelectedIndexFunc);
             RegisterPrivateMethodToDelegate("GetSelectedIndex", out GetSelectedIndexFunc);
             RegisterPrivateMethodToDelegate("Hide", out HideFunc);
 
@@ -256,10 +254,6 @@ namespace NestedDropdownMenuSystem
                 case KeyboardNavigationOperation.MoveLeft:
                     if (IsActiveSubMenu)
                     {
-                        if ( _parentMenu?.contentContainer is { } focusTarget)
-                        {
-                            focusTarget.schedule.Execute(() => focusTarget.Focus());
-                        }
                         HideAsSubMenu();
                     }
                     break;
@@ -291,27 +285,22 @@ namespace NestedDropdownMenuSystem
         private void OnPointerDown(PointerDownEvent evt)
         {
             OnPointerDownFunc(this, evt);
-            HideSubMenusForUnselectedItems();
+            PostPointerDownOrMove();
         }
         
         private void OnPointerMove(PointerMoveEvent evt)
         {
             OnPointerMoveFunc(this, evt);
+            PostPointerDownOrMove();
+        }
+
+        private void PostPointerDownOrMove()
+        {
             HideSubMenusForUnselectedItems();
-
-            var activeSubMenuItem = GetActiveSubMenuItem();
-            if (activeSubMenuItem != null)
-            {
-                SelectItem(activeSubMenuItem);
-            }
-
-            // 末端メニューにフォーカス
-            // 親メニュー上でポインターが動き、子のサブメニューが消えた場合、
-            // フォーカスがどこにも当たっていない状態になるので末端メニューにフォーカスする
-            if (IsCurrentLeafMenu)
-            {
-                contentContainer.schedule.Execute(() => contentContainer.Focus());
-            }
+            
+            // どのアイテムも選択されなかった場合でアクティブなサブメニューがある場合は
+            // そのアイテムの選択状態をキープ（どのメニューにも属さない微妙な隙間とかがありえる）
+            SelectItem(GetActiveSubMenuItem());
         }
         
         private void OnPointerUp(PointerUpEvent evt)
@@ -393,9 +382,9 @@ namespace NestedDropdownMenuSystem
         }
 
 
-        private void SelectItem(VisualElement element)
+        private static void SelectItem(VisualElement? element)
         {
-            element.AddPseudoStatesHover();
+            element?.AddPseudoStatesHover();
         }
 
         private VisualElement? GetActiveSubMenuItem()
@@ -413,9 +402,13 @@ namespace NestedDropdownMenuSystem
                 return null;
             }
             
+            return GetItems().ElementAt(selectedIndex);
+        }
+
+        private IEnumerable<VisualElement> GetItems()
+        {
             return _scrollView.Children()
-                .Where(ve => ve.ClassListContains(itemUssClassName))
-                .ElementAt(selectedIndex);
+                .Where(ve => ve.ClassListContains(itemUssClassName));
         }
 
         public void AddSubMenuItem(string itemName, long delayMs, SingleMenu subMenu)
@@ -442,6 +435,8 @@ namespace NestedDropdownMenuSystem
             });
 
             item.RegisterCallback<PointerLeaveEvent>(_ => { scheduledItem?.Pause(); });
+
+            item.RegisterCallback<PointerLeaveEvent>(OnPointerLeave);
         }
 
         private void ShowAsSubMenu(SingleMenu parentMenu, VisualElement targetElement, bool selectFirstItem = false)
@@ -458,7 +453,7 @@ namespace NestedDropdownMenuSystem
 
             if (selectFirstItem)
             {
-                ChangeSelectedIndexFunc(this, 0, GetSelectedIndexFunc(this));
+                SelectItem(GetItems().FirstOrDefault());
             }
         }
         
@@ -515,16 +510,23 @@ namespace NestedDropdownMenuSystem
         }
         
 
-        private void HideAsSubMenu()
+        private void HideAsSubMenu(bool giveFocusParent = true)
         {
             if (IsRootMenu) return;
             
             foreach(var submenu in _itemToSubMenuTable.Values)
             {
-                submenu.HideAsSubMenu();
+                submenu.HideAsSubMenu(false);
             }
             
             _outerContainer.RemoveFromHierarchy();
+
+            if (giveFocusParent)
+            {
+                var focusTarget = _parentMenu?.contentContainer;
+                focusTarget?.schedule.Execute(() => focusTarget.Focus());
+            }
+            
             _parentMenu = null;
         }
     }
