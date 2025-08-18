@@ -1,5 +1,7 @@
 # NestedDropdownMenu
 
+[![npm version](https://badge.fury.io/js/ga.fuquna.nested-dropdown-menu.svg)](https://badge.fury.io/js/ga.fuquna.rosettaui)
+
 Nested dropdown menus built with Unity UI Toolkit's GenericDropdownMenu, supporting runtime operations.
 
 EditorWindow
