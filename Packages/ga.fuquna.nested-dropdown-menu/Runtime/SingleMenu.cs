@@ -445,7 +445,7 @@ namespace NestedDropdownMenuSystem
             
             _parentMenu = parentMenu;
             
-            _outerContainer.RegisterCallbackOnce<GeometryChangedEvent>(_ => EnsureSubMenuPosition(targetElement));
+            _outerContainer.RegisterCallbackOnce<GeometryChangedEvent>(_ => EnsurePositionAsSubMenu(targetElement));
             
             RootMenuContainer.Add(_outerContainer);
             
@@ -461,10 +461,10 @@ namespace NestedDropdownMenuSystem
         /// RootMenuContainerローカル座標系ではみ出ないようにサブメニューの位置を調整する
         /// </summary>
         /// <param name="targetElement"></param>
-        private void EnsureSubMenuPosition(VisualElement targetElement)
+        private void EnsurePositionAsSubMenu(VisualElement targetElement)
         {
             var rectWorld = targetElement.worldBound;
-            var rootMenuContainer = RootMenuContainer;
+            var rootMenuContainer = _outerContainer.parent;
             var position = rootMenuContainer.WorldToLocal(new Vector2(rectWorld.xMax, rectWorld.yMin));
 
             // firstItemとtargetElementのYの位置を揃える
@@ -498,9 +498,12 @@ namespace NestedDropdownMenuSystem
                 position.y = Mathf.Max(0f, rootRect.height - outerContainerRect.height);
             }
 
+            // OuterContainerの位置を調整
+            // 実際の表示位置は、Style.left,topで指定した位置からMarginを含めて計算されるのであらかじめMarginを引いておく
+            var resolvedStyle = _outerContainer.resolvedStyle;
             var style = _outerContainer.style;
-            style.left = position.x;
-            style.top = position.y;
+            style.left = position.x - resolvedStyle.marginLeft;
+            style.top = position.y - resolvedStyle.marginTop;
             
             // サブメニューがルートメニューより長い場合は縮めてスクロールビューに頼る
             if (outerContainerRect.height > rootRect.height)
