@@ -18,7 +18,11 @@ namespace NestedDropdownMenuSystem.Sample.Runtime
 
 
             var sample = SampleMenu.CreateElement();
+#if UNITY_6000_1_OR_NEWER
             sample.style.backgroundColor = Color.darkGray;
+#else
+            sample.style.backgroundColor = new Color(0.6627451f, 0.6627451f, 0.6627451f, 1f);
+#endif
 
             var textInput = sample.Q(className: TextField.inputUssClassName);
             textInput.style.backgroundColor = new Color(0.13f, 0.13f, 0.13f);
