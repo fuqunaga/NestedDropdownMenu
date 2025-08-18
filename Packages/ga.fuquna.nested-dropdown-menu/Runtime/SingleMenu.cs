@@ -463,9 +463,11 @@ namespace NestedDropdownMenuSystem
         /// <param name="targetElement"></param>
         private void EnsurePositionAsSubMenu(VisualElement targetElement)
         {
-            var rectWorld = targetElement.worldBound;
+            var targetWorldBound = targetElement.worldBound;
+            
             var rootMenuContainer = _outerContainer.parent;
-            var position = rootMenuContainer.WorldToLocal(new Vector2(rectWorld.xMax, rectWorld.yMin));
+            var targetLocalBound = rootMenuContainer.WorldToLocal(targetWorldBound);
+            var position = new Vector2(targetLocalBound.xMax, targetLocalBound.yMin);
 
             // firstItemとtargetElementのYの位置を揃える
             var firstItem = _scrollView.Children().FirstOrDefault();
@@ -484,11 +486,7 @@ namespace NestedDropdownMenuSystem
             // ただし左側がルートからはみ出すようならルートの左側に揃える
             if (position.x + outerContainerRect.width > rootRect.width)
             {
-                if (_parentMenu is { } parentMenu)
-                {
-                    var parentOuterContainerRect = parentMenu._outerContainer.layout;
-                    position.x = Mathf.Max(0f, parentOuterContainerRect.xMin - outerContainerRect.width);
-                }
+                position.x = Mathf.Max(0f, targetLocalBound.xMin - outerContainerRect.width);
             }
             
             // 下端がルートからはみ出るようならルートの下端に揃える
