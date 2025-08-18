@@ -1,14 +1,14 @@
 {
   "name": "ga.fuquna.nested-dropdown-menu",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "NestedDropdownMenu",
   "description": "Nested dropdown menus built with Unity UI Toolkit's GenericDropdownMenu, supporting runtime operations.",
   "unity": "2022.3",
   "documentationUrl": "https://github.com/fuqunaga/NestedDropdownMenu",
   "keywords": [
-      "UIToolkit",
-      "ui",
-      "ga.fuquna"
+    "UIToolkit",
+    "ui",
+    "ga.fuquna"
   ],
   "author": {
     "name": "fuqunaga",
