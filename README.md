@@ -1,6 +1,7 @@
 # NestedDropdownMenu
 
 [![npm version](https://badge.fury.io/js/ga.fuquna.nested-dropdown-menu.svg)](https://badge.fury.io/js/ga.fuquna.rosettaui)
+[![openupm](https://img.shields.io/npm/v/ga.fuquna.rosettaui?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/ga.fuquna.rosettaui/)
 
 Nested dropdown menus built with Unity UI Toolkit's GenericDropdownMenu, supporting runtime operations.
 
@@ -12,11 +13,21 @@ Runtime
 
 # Installation
 
-Add the following address to Unity PackageManager.  
-```
-https://github.com/fuqunaga/NestedDropdownMenu.git?path=/Packages/ga.fuquna.nested-dropdown-menu
-```
+### 1. Set Up the Scoped Registry
 
+1. Open Unity Editor and go to `Edit > Project Settings`.
+2. Select `Package Manager` from the left panel.
+3. In `Scoped Registries`, enter the following:
+   - **Name**: `fuqunaga`
+   - **URL**: `https://registry.npmjs.com` or `https://package.openupm.com`
+   - **Scope(s)**: `ga.fuquna`
+4. Click **Apply**.
+
+### 2. Install via Package Manager
+
+1. Go to `Window > Pacakge Management > Package Manager` to open the Package Manager window.
+2. Switch to the `My Registries.
+3. Find `NestedDropdownMenu` and click **Install**.
 
 ## License
 
