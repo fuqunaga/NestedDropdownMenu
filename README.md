@@ -1,7 +1,7 @@
 # NestedDropdownMenu
 
-[![npm version](https://badge.fury.io/js/ga.fuquna.nested-dropdown-menu.svg)](https://badge.fury.io/js/ga.fuquna.rosettaui)
-[![openupm](https://img.shields.io/npm/v/ga.fuquna.rosettaui?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/ga.fuquna.rosettaui/)
+[![npm version](https://badge.fury.io/js/ga.fuquna.nested-dropdown-menu.svg)](https://badge.fury.io/js/ga.fuquna.nested-dropdown-menu)
+[![openupm](https://img.shields.io/npm/v/ga.fuquna.nested-dropdown-menu?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/ga.fuquna.nested-dropdown-menu/)
 
 Nested dropdown menus built with Unity UI Toolkit's GenericDropdownMenu, supporting runtime operations.
 
