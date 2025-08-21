@@ -29,7 +29,7 @@ Runtime
 2. Switch to the `My Registries.
 3. Find `NestedDropdownMenu` and click **Install**.
 
-## License
+# License
 
 This project is licensed under the MIT.
 
